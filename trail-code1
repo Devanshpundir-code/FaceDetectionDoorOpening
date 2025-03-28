@@ -1,0 +1,57 @@
+import cv2
+import face_recognition
+
+# same image ke paths
+
+img_paths = [
+    r"C:\Users\hp\Documents\projects\imagereco\yojit\1.jpeg",
+    r"C:\Users\hp\Documents\projects\imagereco\yojit\2.jpeg",
+    r"C:\Users\hp\Documents\projects\imagereco\yojit\3.jpeg",
+    r"C:\Users\hp\Documents\projects\imagereco\yojit\4.jpeg",
+    r"C:\Users\hp\Documents\projects\imagereco\yojit\5.jpeg",
+]
+
+diff_img_path = r"C:\Users\hp\Documents\projects\imagereco\dev1.jpg"
+
+
+# now storing encooded images to a new list
+encodings = []
+
+
+for i in img_paths:
+    img = cv2.imread(i) #reads image
+    rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) #CONVERTS img to rbg
+    enc = face_recognition.face_encodings(rgb_img) #encodes the images to code
+
+    if enc:
+        encodings.append(enc[0]) # enc[0] will detect first face present in the image
+    else:
+        print(f"No face detected in {i}")
+
+
+# doing the different image encoding seperately 
+diff_img = cv2.imread(diff_img_path)
+rgb_diff_img = cv2.cvtColor(diff_img, cv2.COLOR_BGR2RGB)
+diff_enc = face_recognition.face_encodings(rgb_diff_img)
+encodings.append(diff_enc[0])
+
+if diff_enc:
+    diff_enc = diff_enc[0]
+else:
+    print("No face detected in different image")
+    exit()
+
+
+# for i in encodings:
+#     print("the encoding are", i)
+
+
+
+if len(encodings) > 0:
+    first_encoding = encodings[0]  # Take the first image's encoding
+
+    for idx, encodings in enumerate(encodings[1:], start=2):  # Start from the second image
+        result = face_recognition.compare_faces([first_encoding], encodings)
+        print(f"Image {idx} comparison result: {result}")
+else:
+    print("No valid encodings found.")
